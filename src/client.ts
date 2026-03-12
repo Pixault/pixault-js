@@ -1,9 +1,11 @@
 import type {
+  DerivedAsset,
   ImageListFilter,
   ImageListResponse,
   ImageMetadata,
   MetadataUpdate,
   PixaultConfig,
+  ProcessingStatus,
   UploadOptions,
   UploadResponse,
 } from './types.js';
@@ -172,6 +174,33 @@ export class Pixault {
     if (filter?.isVideo !== undefined) params.set('isVideo', String(filter.isVideo));
 
     return (await this._fetch(`/api/${project}/images?${params}`)) as ImageListResponse;
+  }
+
+  // ── EPS Operations ──
+
+  /** List derived assets (rasterized PNGs, SVGs, splits) for an EPS parent image. */
+  async listDerived(project: string, imageId: string): Promise<DerivedAsset[]> {
+    return (await this._fetch(`/api/${project}/${imageId}/derived`)) as DerivedAsset[];
+  }
+
+  /** Get the processing status for an EPS file. Returns null if no job found. */
+  async getProcessingStatus(project: string, imageId: string): Promise<ProcessingStatus | null> {
+    try {
+      return (await this._fetch(`/api/${project}/${imageId}/processing-status`)) as ProcessingStatus;
+    } catch (err) {
+      if (err instanceof PixaultError && err.status === 404) return null;
+      throw err;
+    }
+  }
+
+  /** Trigger auto-split to extract individual designs from an EPS file. */
+  async splitDesigns(project: string, imageId: string): Promise<void> {
+    await this._fetch(`/api/${project}/${imageId}/split`, { method: 'POST' }, false);
+  }
+
+  /** Trigger vector SVG extraction from an EPS file. */
+  async extractSvg(project: string, imageId: string): Promise<void> {
+    await this._fetch(`/api/${project}/${imageId}/extract-svg`, { method: 'POST' }, false);
   }
 
   // ── Internal ──

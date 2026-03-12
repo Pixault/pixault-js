@@ -115,3 +115,28 @@ export interface UploadOptions {
   keywords?: string;
   author?: string;
 }
+
+/** A derived asset (rasterized PNG, SVG extraction, split design) from an EPS parent. */
+export interface DerivedAsset {
+  imageId: string;
+  derivationType: string | null;
+  width: number;
+  height: number;
+  sizeBytes: number;
+  contentType: string;
+  uploadedAt: string;
+}
+
+/** Processing status for an EPS job (rasterize, split, or SVG extraction). */
+export interface ProcessingStatus {
+  id: string;
+  source: string;
+  status: string;
+  totalAssets: number;
+  processedAssets: number;
+  succeededAssets: number;
+  failedAssets: number;
+  createdAt: string;
+  startedAt: string | null;
+  completedAt: string | null;
+}
