@@ -103,6 +103,78 @@ export class UrlBuilder {
     return `${this._baseUrl}/${this._project}/${this._imageId}/${allParams.join(',')}.${this._format}`;
   }
 
+  /**
+   * Generate a single `<img>` tag with `srcset` using auto-format negotiation.
+   * The browser picks the best width; the CDN picks the best format via `Vary: Accept`.
+   */
+  toImgTag(options: {
+    alt: string;
+    widths?: number[];
+    sizes?: string;
+    loading?: 'lazy' | 'eager';
+    class?: string;
+  }): string {
+    const widths = (options.widths ?? [400, 800, 1200]).sort((a, b) => a - b);
+    const maxWidth = widths[widths.length - 1];
+    const tp = this._buildTransformParams();
+    const sizes = this._escapeAttr(options.sizes ?? '100vw');
+    const alt = this._escapeAttr(options.alt);
+    const loading = options.loading ?? 'lazy';
+    const cls = options.class ? ` class="${this._escapeAttr(options.class)}"` : '';
+
+    const srcset = widths
+      .map(w => `${this._baseUrl}/${this._project}/${this._imageId}/${tp}w_${w}.auto ${w}w`)
+      .join(', ');
+    const src = `${this._baseUrl}/${this._project}/${this._imageId}/${tp}w_${maxWidth}.auto`;
+
+    return `<img src="${src}" srcset="${srcset}" sizes="${sizes}" alt="${alt}" width="${maxWidth}" loading="${loading}" decoding="async"${cls}>`;
+  }
+
+  /**
+   * Generate a `<picture>` element with AVIF and WebP `<source>` elements
+   * and a JPEG fallback `<img>`. Provides both format negotiation and responsive sizing.
+   */
+  toPictureTag(options: {
+    alt: string;
+    widths?: number[];
+    sizes?: string;
+    loading?: 'lazy' | 'eager';
+    class?: string;
+  }): string {
+    const widths = (options.widths ?? [400, 800, 1200]).sort((a, b) => a - b);
+    const maxWidth = widths[widths.length - 1];
+    const tp = this._buildTransformParams();
+    const sizes = this._escapeAttr(options.sizes ?? '100vw');
+    const alt = this._escapeAttr(options.alt);
+    const loading = options.loading ?? 'lazy';
+    const cls = options.class ? ` class="${this._escapeAttr(options.class)}"` : '';
+
+    const avifSrcset = widths
+      .map(w => `${this._baseUrl}/${this._project}/${this._imageId}/${tp}w_${w}.avif ${w}w`)
+      .join(', ');
+    const webpSrcset = widths
+      .map(w => `${this._baseUrl}/${this._project}/${this._imageId}/${tp}w_${w}.webp ${w}w`)
+      .join(', ');
+    const fallback = `${this._baseUrl}/${this._project}/${this._imageId}/${tp}w_${maxWidth}.jpg`;
+
+    return `<picture>` +
+      `<source srcset="${avifSrcset}" type="image/avif" sizes="${sizes}">` +
+      `<source srcset="${webpSrcset}" type="image/webp" sizes="${sizes}">` +
+      `<img src="${fallback}" alt="${alt}" width="${maxWidth}" loading="${loading}" decoding="async"${cls}>` +
+      `</picture>`;
+  }
+
+  private _buildTransformParams(): string {
+    const parts: string[] = [];
+    if (this._transform) parts.push(`t_${this._transform}`);
+    parts.push(...this._params);
+    return parts.length > 0 ? parts.join(',') + ',' : '';
+  }
+
+  private _escapeAttr(value: string): string {
+    return value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
   toString(): string {
     return this.build();
   }
