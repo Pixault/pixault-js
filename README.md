@@ -65,6 +65,20 @@ const url = pixault.image('img_01JKABC')
   .build();
 ```
 
+### SEO Embed Tags
+
+```typescript
+// Single <img> with auto-format
+const imgTag = pixault.image('tattoo', 'img_01JKABC')
+    .quality(85)
+    .toImgTag({ alt: 'Sunset tattoo', widths: [400, 800, 1200] });
+
+// Full <picture> with AVIF/WebP/JPEG
+const pictureTag = pixault.image('tattoo', 'img_01JKABC')
+    .quality(85)
+    .toPictureTag({ alt: 'Sunset tattoo', widths: [400, 800, 1200] });
+```
+
 ## Configuration
 
 | Option | Description | Required |
