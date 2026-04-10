@@ -8,6 +8,7 @@ import type {
   ProcessingStatus,
   UploadOptions,
   UploadResponse,
+  Watermark,
 } from './types.js';
 import { UrlBuilder } from './url-builder.js';
 
@@ -201,6 +202,57 @@ export class Pixault {
   /** Trigger vector SVG extraction from an EPS file. */
   async extractSvg(project: string, imageId: string): Promise<void> {
     await this._fetch(`/api/${project}/${imageId}/extract-svg`, { method: 'POST' }, false);
+  }
+
+  // ── Watermarks ──
+
+  /**
+   * List watermarks available in a project.
+   *
+   * @example
+   * ```ts
+   * const watermarks = await pixault.listWatermarks('my-project');
+   * for (const wm of watermarks) {
+   *   console.log(wm.id, wm.sizeBytes);
+   * }
+   * ```
+   */
+  async listWatermarks(project: string): Promise<Watermark[]> {
+    return (await this._fetch(`/api/${project}/watermarks/`)) as Watermark[];
+  }
+
+  /**
+   * Upload (or replace) a watermark image. PNG with transparency is recommended.
+   *
+   * The watermark ID must match `^[a-z0-9][a-z0-9\-_]{0,63}$` (lowercase
+   * letters, digits, hyphens, or underscores; max 64 characters).
+   *
+   * @example
+   * ```ts
+   * const file = document.querySelector<HTMLInputElement>('#wm').files![0];
+   * const wm = await pixault.uploadWatermark('my-project', 'logo', file);
+   * ```
+   */
+  async uploadWatermark(
+    project: string,
+    watermarkId: string,
+    image: Blob | File | Buffer,
+    contentType: string = 'image/png',
+  ): Promise<Watermark> {
+    return (await this._fetch(`/api/${project}/watermarks/${watermarkId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': contentType },
+      body: image as BodyInit,
+    })) as Watermark;
+  }
+
+  /** Delete a watermark by ID. */
+  async deleteWatermark(project: string, watermarkId: string): Promise<void> {
+    await this._fetch(
+      `/api/${project}/watermarks/${watermarkId}`,
+      { method: 'DELETE' },
+      false,
+    );
   }
 
   // ── Internal ──

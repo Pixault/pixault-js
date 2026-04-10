@@ -127,6 +127,18 @@ export interface DerivedAsset {
   uploadedAt: string;
 }
 
+/** A watermark stored in a project's watermark bucket. */
+export interface Watermark {
+  /** Watermark identifier (e.g. "logo", "copyright"). */
+  id: string;
+  /** File size in bytes. */
+  sizeBytes: number;
+  /** MIME type (typically "image/png"). */
+  contentType: string;
+  /** Last modification timestamp (ISO 8601). */
+  updatedAt: string | null;
+}
+
 /** Processing status for an EPS job (rasterize, split, or SVG extraction). */
 export interface ProcessingStatus {
   id: string;

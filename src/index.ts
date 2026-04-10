@@ -3,6 +3,8 @@ export { UrlBuilder } from './url-builder.js';
 export type {
   DerivedAsset,
   FitMode,
+  ImageListFilter,
+  ImageListResponse,
   ImageMetadata,
   MetadataUpdate,
   OutputFormat,
@@ -10,5 +12,6 @@ export type {
   ProcessingStatus,
   UploadOptions,
   UploadResponse,
+  Watermark,
   WmPosition,
 } from './types.js';
