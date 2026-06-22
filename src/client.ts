@@ -22,8 +22,7 @@ import { UrlBuilder } from './url-builder.js';
  * const pixault = new Pixault({
  *   baseUrl: 'https://img.pixault.io',
  *   defaultProject: 'barber',
- *   clientId: 'px_cl_a1b2c3d4',
- *   clientSecret: 'pk_...',
+ *   apiKey: 'pk_your_secret_key',
  * });
  *
  * // Generate URLs
@@ -263,13 +262,7 @@ export class Pixault {
     parseJson: boolean = true
   ): Promise<unknown> {
     const headers = new Headers(init.headers);
-    if (this._config.clientId) {
-      headers.set('X-Client-Id', this._config.clientId);
-    }
-    if (this._config.clientSecret) {
-      headers.set('X-Client-Secret', this._config.clientSecret);
-    } else if (this._config.apiKey) {
-      // Legacy fallback
+    if (this._config.apiKey) {
       headers.set('X-Api-Key', this._config.apiKey);
     }
 

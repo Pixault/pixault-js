@@ -24,8 +24,7 @@ import { Pixault } from '@pixault/sdk';
 const pixault = new Pixault({
   baseUrl: 'https://img.pixault.io',
   defaultProject: 'my-project',
-  clientId: 'px_cl_a1b2c3d4',
-  clientSecret: 'pk_...',
+  apiKey: 'pk_your_secret_key',
 });
 
 // Generate an optimized image URL
@@ -85,8 +84,7 @@ const pictureTag = pixault.image('tattoo', 'img_01JKABC')
 |--------|-------------|----------|
 | `baseUrl` | Pixault CDN base URL | Yes |
 | `defaultProject` | Default project ID | No |
-| `clientId` | API key client ID (`px_cl_...`) | No |
-| `clientSecret` | API key secret (`pk_...`) | No |
+| `apiKey` | API key (`pk_…`) for uploads/management. Sent as `X-Api-Key`. | No |
 
 ## Documentation
 

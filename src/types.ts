@@ -13,14 +13,7 @@ export interface PixaultConfig {
   baseUrl: string;
   /** Default project ID used when not specified per-request. */
   defaultProject?: string;
-  /** Client ID for identifying the API key pair (e.g. "px_cl_a1b2c3d4"). */
-  clientId?: string;
-  /** Client secret for authenticating API requests (shown once at key creation). */
-  clientSecret?: string;
-  /**
-   * Legacy API key for upload and management operations.
-   * @deprecated Use `clientId` + `clientSecret` instead.
-   */
+  /** API key (`pk_…` secret) for upload and management operations. Sent as the `X-Api-Key` header. */
   apiKey?: string;
 }
 
