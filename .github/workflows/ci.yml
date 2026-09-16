@@ -1,0 +1,47 @@
+name: CI
+
+# This SDK is consumed straight from GitHub, not from npmjs.com -- there is
+# deliberately no publish step. Without a registry release to act as a gate,
+# main is what people install, so the build has to be verified on every push.
+#
+# Consumers install it as a git dependency:
+#   npm install github:Pixault/pixault-js
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      # dist/ is gitignored, so a silently failed build would otherwise look green.
+      - name: Verify build output
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in dist/index.js dist/index.cjs dist/index.d.ts; do
+            [ -s "$f" ] || { echo "::error::missing or empty $f"; exit 1; }
+          done
+          npm pack --dry-run
